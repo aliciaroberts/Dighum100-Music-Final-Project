@@ -24,8 +24,9 @@ token = 'HLRORyLWz4776M-RCyF_dAOMBQe9q84xenZadvnQgSO-nO9XOhlqkz5Bc-LH5PlY'
 genius = (lyricsgenius.Genius(token, 
                               skip_non_songs = True, 
                               verbose = False, # turns on or off the text responses, should turn off when done debugging
-                              remove_section_headers = False, # for the lyrics: no chorus or bridge listed
-                              retries = 3) ) # the number of times search should try in event of crashes or timeouts 
+                              remove_section_headers = False,
+                              sleep_time = 3, # for the lyrics: no chorus or bridge listed
+                              retries = 1) ) # the number of times search should try in event of crashes or timeouts 
 
 
 # functions time: 
@@ -35,24 +36,19 @@ def get_artistID(artist):
     return genius.search_artist(artist, max_songs = 0).id
 
 
-def get_lyrics(art = None, song = None, s_ID = None):
+def get_lyrics(song = None, s_ID = None):
     '''given a song title or song ID, return the lyrics in plain text
     can print this method to get the website version of the lyrics!
     If given both song title and ID, use the ID for query'''
-    
-    if art == None:
-        raise Exception("Please provide an artist name")
+
     if type(s_ID) == int: # ie, user submitted the song ID as opposed to the song title
-        lyrics = (genius.search_song(artist = art,
-                   get_full_info = False, 
+        lyrics = (genius.search_song(get_full_info = False, 
                    song_ID = s_ID).lyrics)
         return lyrics 
          
     elif type(song) == str: # user submitted sone title instead:
         lyrics = (genius.search_song(title = song,
-                    artist = art,
-                    get_full_info = False, 
-                   ).lyrics)
+                    get_full_info = False,).lyrics)
     else:
         # this means nothing was submitted or the type of the 
         # variables is incorrect 
@@ -86,8 +82,10 @@ def get_year(song):
 def get_artist_ID(artist):
     '''given an artist, reaturn their artist ID 
     OUTPUT: INT'''
-    ID = genius.search_artist(artist, max_songs = 0).id
-    return ID 
+    artist_info = genius.search_artist(artist, max_songs = 0)
+    if artist_info == None:
+        return -1
+    return artist_info.id
 
 
 def song_dictionary(artist_ID, song_title, most_popular_only = True):
