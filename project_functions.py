@@ -36,29 +36,33 @@ def get_artistID(artist):
     return genius.search_artist(artist, max_songs = 0).id
 
 
-def get_lyrics(song = None, s_ID = None):
-    '''given a song title or song ID, return the lyrics in plain text
-    can print this method to get the website version of the lyrics!
-    If given both song title and ID, use the ID for query'''
+# def get_lyrics(song = None, s_ID = None):
+#     '''given a song title or song ID, return the lyrics in plain text
+#     can print this method to get the website version of the lyrics!
+#     If given both song title and ID, use the ID for query'''
 
-    if type(s_ID) == int: # ie, user submitted the song ID as opposed to the song title
-        lyrics = (genius.search_song(get_full_info = False, 
-                   song_ID = s_ID).lyrics)
-        return lyrics 
+#     if type(s_ID) == int: # ie, user submitted the song ID as opposed to the song title
+#         lyrics = (genius.search_song(get_full_info = False, 
+#                    song_ID = s_ID).lyrics)
+#         return lyrics 
          
-    elif type(song) == str: # user submitted sone title instead:
-        lyrics = (genius.search_song(title = song,
-                    get_full_info = False,).lyrics)
-    else:
-        # this means nothing was submitted or the type of the 
-        # variables is incorrect 
-        if song == None and s_ID == None:
-            raise Exception('Please enter a song title or song ID')
-        if type(s_ID) != int:
-            raise Exception('Please enter a number for song ID')
-        if type(song) != str:
-            raise Exception('Wrong data type for song title: looking for STRING')
-    return lyrics 
+#     elif type(song) == str: # user submitted sone title instead:
+#         lyrics = (genius.search_song(title = song,
+#                     get_full_info = False,).lyrics)
+#     else:
+#         # this means nothing was submitted or the type of the 
+#         # variables is incorrect 
+#         if song == None and s_ID == None:
+#             raise Exception('Please enter a song title or song ID')
+#         if type(s_ID) != int:
+#             raise Exception('Please enter a number for song ID')
+#         if type(song) != str:
+#             raise Exception('Wrong data type for song title: looking for STRING')
+#     return lyrics 
+
+def get_lyrics(song):
+    '''given a song dictionary, return the lyrics in plain text'''
+    return song['lyrics']
 
 def get_release_date(song_dict, form = 'd'):
     '''given a song dictionary, return the date the song came out.
@@ -114,8 +118,4 @@ def get_song_ID(song):
     return song['id']
 
 
-# test case:
-dic = song_dictionary(song_title = 'hello', artist_name = 'Adele')
 
-
-print(dic.keys())
