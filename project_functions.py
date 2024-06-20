@@ -81,7 +81,7 @@ def get_year(song):
     '''given SONG, return the year the song came out
     OUTPUT: INT'''
     year = -1 # default value for no data 
-    if song:
+    if song != None:
         year = get_release_date(song)['year']
     return year
 
@@ -98,8 +98,8 @@ def get_artist_ID(artist):
 def get_description(artist_dic):
     '''returns the description of an artist if applicable'''
     if artist_dic != None:
-        return artist_dic.to_dict()['description']['plain']
-    return artist_dic
+        return artist_dic['description']['plain']
+    return -1
 
 
 
