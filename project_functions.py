@@ -23,9 +23,9 @@ import lyricsgenius
 token = 'HLRORyLWz4776M-RCyF_dAOMBQe9q84xenZadvnQgSO-nO9XOhlqkz5Bc-LH5PlY'
 genius = (lyricsgenius.Genius(token, 
                               skip_non_songs = True, 
-                              verbose = False, # turns on or off the text responses, should turn off when done debugging
-                              remove_section_headers = False,
-                              sleep_time = 3, # for the lyrics: no chorus or bridge listed
+                              verbose = True, # turns on or off the text responses, should turn off when done debugging
+                              remove_section_headers = False, # for the lyrics: no chorus or bridge listed
+                              sleep_time = 3, # extend this to avoid usage limits default 0.2
                               retries = 1) ) # the number of times search should try in event of crashes or timeouts 
 
 
@@ -88,23 +88,34 @@ def get_artist_ID(artist):
     return artist_info.id
 
 
-def song_dictionary(artist_ID, song_title, most_popular_only = True):
+def song_dictionary(song_title, artist_name, ID = None, info = True):
     '''returns the dictionary of keywords and information about a song
-    INPUTS: artist_ID: an integer value
-            song_title: the title of the song, not case sensitive
+    INPUTS: SONG_TITLE: the string title for the song
+            ARTIST_NAME: the name of the artist
+            ID: The artist ID
+            INFO: boolean that when true returns all song info (takes longer)
+            MOST_POPULAR ONLY: default to True VVV
     caveat: will return all songs of that artist with the same or similar title 
     (eg the 10 minute version or Taylor's version vs the original, new features, etc. . . 
     to account for this, the term: most_popular_only can be set to true to only return the most popular 
     version of the song we want''' 
-    dictionary = (genius.search_artist_songs(artist_id = artist_ID, 
-                            search_term =song_title, 
-                                            sort = 'popular'))
-    if most_popular_only:
-        return dictionary['songs'][0]
-    return dictionary['songs']
-
+    
+    dictionary = (genius.search_song(title = song_title,
+                                     artist = artist_name,
+                                     song_id = ID, 
+                                     get_full_info = info))
+    
+    if dictionary:
+        return dictionary.to_dict()
+    else:
+        return dictionary
+    
 def get_song_ID(song):
     return song['id']
 
 
+# test case:
+dic = song_dictionary(song_title = 'hello', artist_name = 'Adele')
 
+
+print(dic.keys())
