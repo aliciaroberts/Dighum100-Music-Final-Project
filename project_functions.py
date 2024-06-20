@@ -25,7 +25,7 @@ genius = (lyricsgenius.Genius(token,
                               skip_non_songs = True, 
                               verbose = True, # turns on or off the text responses, should turn off when done debugging
                               remove_section_headers = False, # for the lyrics: no chorus or bridge listed
-                              sleep_time = 3, # extend this to avoid usage limits default 0.2
+                              sleep_time = 20, # extend this to avoid usage limits default 0.2
                               retries = 1) ) # the number of times search should try in event of crashes or timeouts 
 
 
@@ -92,30 +92,32 @@ def get_artist_ID(artist):
     return artist_info.id
 
 
-def song_dictionary(song_title, artist_name, ID = None, info = True):
-    '''returns the dictionary of keywords and information about a song
-    INPUTS: SONG_TITLE: the string title for the song
-            ARTIST_NAME: the name of the artist
-            ID: The artist ID
-            INFO: boolean that when true returns all song info (takes longer)
-            MOST_POPULAR ONLY: default to True VVV
-    caveat: will return all songs of that artist with the same or similar title 
-    (eg the 10 minute version or Taylor's version vs the original, new features, etc. . . 
-    to account for this, the term: most_popular_only can be set to true to only return the most popular 
-    version of the song we want''' 
-    
-    dictionary = (genius.search_song(title = song_title,
-                                     artist = artist_name,
-                                     song_id = ID, 
-                                     get_full_info = info))
-    
-    if dictionary:
-        return dictionary.to_dict()
-    else:
-        return dictionary
+def song_dictionary(df):
+    '''given a data frame that contains artist name and song title (or optionally artist ID),
+    return a dictionary that contains information on that song
+    CURRENT ISSUE: sometimes returns the totally wrong song :(('''
+    dicts = [] # list of dictionaries that can be added to the data frame 
+    for i in range(len(df)):
+        # so itterate through each row if done properly:
+        dictionary = genius.search_song(title = df['Song'].iloc[i],artist = df['Artist'].iloc[i])
+        if dictionary == None:
+            dicts.append(dictionary)
+        else:
+            dicts.append(dictionary.to_dict())
+    return dicts
     
 def get_song_ID(song):
     return song['id']
+
+def get_description(artist):
+    '''returns the description of an artist if applicable'''
+    dic = (genius.search_artist(artist, 
+                                max_songs = 0, 
+                                get_full_info = False, # should speed up the process 
+                                allow_name_change = True)) # could find the right artist or the totally wrong one who knows. . .
+    if dic != None:
+        dic =  dic.to_dict()['description']['plain']
+    return dic
 
 
 
