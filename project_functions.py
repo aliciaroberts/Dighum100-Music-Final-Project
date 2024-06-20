@@ -77,6 +77,10 @@ def get_release_date(song_dict, form = 'd'):
         raise Exception('Wrong form selected, please choose d for DICTIONARY or r for plain text')
         
 
+# ERROR HERE : 
+#         year = get_release_date(song)['year']
+#            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+# TypeError: 'NoneType' object is not subscriptable
 def get_year(song):
     '''given SONG, return the year the song came out
     OUTPUT: INT'''
