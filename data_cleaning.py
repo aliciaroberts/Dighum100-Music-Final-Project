@@ -18,3 +18,23 @@ cities = pd.read_csv('uscities.csv')
 
 # we could do it by wave?
 
+# cache: 
+
+def artist_cache(a):
+    '''storing queried artists'''
+    artists = {}
+    if a in artists:
+        return artists[a]
+    else:
+        artists[a] = get_artist(a)
+        return artists[a]
+    
+    
+def song_cache(s):
+    '''storing queried songs'''
+    songs = {}
+    if s in songs:
+        return songs[s]
+    else:
+        songs[s] = song_dictionary(s)
+        return songs[s]

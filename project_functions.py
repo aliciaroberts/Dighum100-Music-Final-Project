@@ -15,6 +15,7 @@
 # this code shouldn't error 
 
 import lyricsgenius
+import numpy as np
 
 # this is my personal token, so if you want to use this you'll have to 
 # change this to be yours
@@ -29,40 +30,39 @@ genius = (lyricsgenius.Genius(token,
                               retries = 1) ) # the number of times search should try in event of crashes or timeouts 
 
 
-# functions time: 
     
-def get_artistID(artist):
-    '''given the artist name return the artist ID'''
-    return genius.search_artist(artist, max_songs = 0).id
+
+# functions time: 
+
+def get_artist(artist):
+    dic = (genius.search_artist(artist, 
+                                    max_songs = 0, 
+                                    get_full_info = False, # should speed up the process 
+                                    allow_name_change = True)) # could find the right artist or the totally wrong one who knows. . .
+    if dic != None:
+        dic =  dic.to_dict()
+    return dic
 
 
-# def get_lyrics(song = None, s_ID = None):
-#     '''given a song title or song ID, return the lyrics in plain text
-#     can print this method to get the website version of the lyrics!
-#     If given both song title and ID, use the ID for query'''
+def song_dictionary(df):
+    '''given a data frame that contains artist name and song title (or optionally artist ID),
+    return a dictionary that contains information on that song
+    CURRENT ISSUE: sometimes returns the totally wrong song :(('''
+    dicts = [] # list of dictionaries that can be added to the data frame 
+    for i in range(len(df)):
+        # so itterate through each row if done properly:
+        dictionary = genius.search_song(title = df['Song'].iloc[i],artist = df['Artist'].iloc[i])
+        if dictionary == None:
+            dicts.append(dictionary)
+        else:
+            dicts.append(dictionary.to_dict())
+    return dicts
 
-#     if type(s_ID) == int: # ie, user submitted the song ID as opposed to the song title
-#         lyrics = (genius.search_song(get_full_info = False, 
-#                    song_ID = s_ID).lyrics)
-#         return lyrics 
-         
-#     elif type(song) == str: # user submitted sone title instead:
-#         lyrics = (genius.search_song(title = song,
-#                     get_full_info = False,).lyrics)
-#     else:
-#         # this means nothing was submitted or the type of the 
-#         # variables is incorrect 
-#         if song == None and s_ID == None:
-#             raise Exception('Please enter a song title or song ID')
-#         if type(s_ID) != int:
-#             raise Exception('Please enter a number for song ID')
-#         if type(song) != str:
-#             raise Exception('Wrong data type for song title: looking for STRING')
-#     return lyrics 
 
 def get_lyrics(song):
     '''given a song dictionary, return the lyrics in plain text'''
     return song['lyrics']
+
 
 def get_release_date(song_dict, form = 'd'):
     '''given a song dictionary, return the date the song came out.
@@ -80,44 +80,28 @@ def get_release_date(song_dict, form = 'd'):
 def get_year(song):
     '''given SONG, return the year the song came out
     OUTPUT: INT'''
-    year = get_release_date(song)['year']
+    year = -1 # default value for no data 
+    if song:
+        year = get_release_date(song)['year']
     return year
+
 
 def get_artist_ID(artist):
     '''given an artist, reaturn their artist ID 
     OUTPUT: INT'''
-    artist_info = genius.search_artist(artist, max_songs = 0)
+    artist_info = get_artist(artist)
     if artist_info == None:
         return -1
     return artist_info.id
 
 
-def song_dictionary(df):
-    '''given a data frame that contains artist name and song title (or optionally artist ID),
-    return a dictionary that contains information on that song
-    CURRENT ISSUE: sometimes returns the totally wrong song :(('''
-    dicts = [] # list of dictionaries that can be added to the data frame 
-    for i in range(len(df)):
-        # so itterate through each row if done properly:
-        dictionary = genius.search_song(title = df['Song'].iloc[i],artist = df['Artist'].iloc[i])
-        if dictionary == None:
-            dicts.append(dictionary)
-        else:
-            dicts.append(dictionary.to_dict())
-    return dicts
-    
-def get_song_ID(song):
-    return song['id']
-
-def get_description(artist):
+def get_description(artist_dic):
     '''returns the description of an artist if applicable'''
-    dic = (genius.search_artist(artist, 
-                                max_songs = 0, 
-                                get_full_info = False, # should speed up the process 
-                                allow_name_change = True)) # could find the right artist or the totally wrong one who knows. . .
-    if dic != None:
-        dic =  dic.to_dict()['description']['plain']
-    return dic
+    if artist_dic != None:
+        return artist_dic.to_dict()['description']['plain']
+    return artist_dic
+
+
 
 
 
